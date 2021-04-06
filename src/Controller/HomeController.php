@@ -9,6 +9,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionClass;
@@ -90,13 +91,47 @@ class HomeController
     }
 
     /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
+     *
+     * @throws HttpBadRequestException
+     * @throws Exception
+     */
+    public function trailer(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        // В 4 версии такого метода нет WTF?
+        //$trailer_id = $request->getQueryParam('trailer_id');
+
+        $params = $request->getQueryParams();
+        $trailer_id = intval($params['id']);
+        if ($trailer_id == 0) {
+            throw new Exception("Не задан обязательный параметр");
+        }
+
+        $repo = $this->em->getRepository(Movie::class);
+        $data = $repo->find($trailer_id);
+        try {
+            $data = $this->twig->render('home/trailer.html.twig', [
+                'trailer' => $data,
+            ]);
+        } catch (\Exception $e) {
+            throw new HttpBadRequestException($request, $e->getMessage(), $e);
+        }
+
+        $response->getBody()->write($data);
+
+        return $response;
+    }
+
+    /**
      * @return Collection
      */
     protected function fetchData(): Collection
     {
-        $data = $this->em->getRepository(Movie::class)
-            ->findAll();
-
+        $repo = $this->em->getRepository(Movie::class);
+        $data = $repo->findAll();
         return new ArrayCollection($data);
     }
 }

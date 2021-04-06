@@ -1,0 +1,32 @@
+.poster, .caption, .title  {
+    text-align: center
+}
+
+.header {
+    text-align: right
+}
+
+.caption a{
+    color: black;
+}
+
+.link, .link a {
+    text-align: right;
+    color: cadetblue;
+    margin-top: 20px;
+}
+
+.pub_date {
+    text-align: right;
+    color: #6c6a6a;
+    margin-top: 5px;
+}
+.go_home {
+    text-align: right;
+    color: #eee;
+    margin-top: 25px;
+}
+
+.go_home a {
+    color: #6c6a6a;
+}

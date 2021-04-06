@@ -10,7 +10,12 @@
 4) `php bin/console orm:schema-tool:create`
 5) `symfony server:start` или любой другой способ запуска локального сервера
 
+Импорт данных
+--------------
 
+Выполнить в консоли в корне проекта: `php bin/console fetch:trailers`
+
+---------
 
 Задание
 --------------

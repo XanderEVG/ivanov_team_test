@@ -1,0 +1,23 @@
+{% extends 'main.html.twig' %}
+
+{% block title %}{{ trailers | length }} iTunes Movie trailers{% endblock %}
+
+{% block content %}
+
+    {% if(trailer) %}
+        <div class="title">
+            <h1>{{ trailer.title }}</h1>
+        </div>
+        <div class="container">
+            <div class="poster"><img src="{{ trailer.image }}" alt="{{ trailer.title }}"></div>
+            <div class="description">{{ trailer.description }}</div>
+            <div class="description">{{ trailer.description }}</div>
+            <div class="link">Ссылка на оригинальный пост: <a href="{{ trailer.link }}">{{ trailer.link }}</a></div>
+            <div class="pub_date">{{ trailer.pub_date|date("Y-m-d H;i:s") }}</div>
+
+            <div class="go_home"><a href="/">Назад</a></div>
+        </div>
+    {% else %}
+        Трейлер не найден
+    {% endif %}
+{% endblock %}

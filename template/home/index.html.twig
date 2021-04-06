@@ -9,9 +9,13 @@
     <div class="container">
         <h1 class="mt-5 mb-4">{{ trailers | length }} iTunes Movie trailers</h1>
         <table class="table table-bordered">
+
             {% for trailer in trailers %}
                 <tr>
-                    <td>{{ trailer.title }}</td>
+                    <td>
+                        <div class="poster"><img src="{{ trailer.image }}" alt="{{ trailer.title }}"></div>
+                        <div class="caption"><a href="/trailer?id={{ trailer.id }}">{{ trailer.title }}</a></div>
+                    </td>
                 </tr>
             {% endfor %}
         </table>
