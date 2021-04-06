@@ -4,10 +4,11 @@
 
 Установка
 --------------
-0) `docker-compose up`
-1) `composer install`
-2) `php bin/console orm:schema-tool:create`
-3) `symfony server:start` или любой другой способ запуска локального сервера
+1) Скопировать `.env.example` в `.env`, поправить параметр 'DATABASE'
+2) `docker-compose up`
+3) `composer install`
+4) `php bin/console orm:schema-tool:create`
+5) `symfony server:start` или любой другой способ запуска локального сервера
 
 
 

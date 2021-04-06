@@ -7,8 +7,11 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Command\Exceptions\TrailerParseDataFailed;
 use App\Entity\Movie;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -22,6 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class FetchDataCommand.
+ * Импортирует трейлеры из rss trailers.apple.com
  */
 class FetchDataCommand extends Command
 {
@@ -73,11 +77,12 @@ class FetchDataCommand extends Command
         $this
             ->setDescription('Fetch data from iTunes Movie Trailers')
             ->addArgument('source', InputArgument::OPTIONAL, 'Overwrite source')
+            ->addArgument('limit', InputArgument::OPTIONAL, 'Number of trailers to download')
         ;
     }
 
     /**
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return int
@@ -86,9 +91,12 @@ class FetchDataCommand extends Command
     {
         $this->logger->info(sprintf('Start %s at %s', __CLASS__, (string) date_create()->format(DATE_ATOM)));
         $source = self::SOURCE;
+        $limit = self::SOURCE;
         if ($input->getArgument('source')) {
             $source = $input->getArgument('source');
         }
+
+        $limit = $input->getArgument('limit') ?? 10;
 
         if (!is_string($source)) {
             throw new RuntimeException('Source must be string');
@@ -105,7 +113,12 @@ class FetchDataCommand extends Command
             throw new RuntimeException(sprintf('Response status is %d, expected %d', $status, 200));
         }
         $data = $response->getBody()->getContents();
-        $this->processXml($data);
+        try {
+            $this->processXml($data, $limit);
+        } catch (RuntimeException | TrailerParseDataFailed $e) {
+            $io->error($e->getMessage());
+        }
+
 
         $this->logger->info(sprintf('End %s at %s', __CLASS__, (string) date_create()->format(DATE_ATOM)));
 
@@ -114,24 +127,28 @@ class FetchDataCommand extends Command
 
     /**
      * @param string $data
-     *
-     * @throws \Exception
+     * @param int $limit
+     * @throws TrailerParseDataFailed
      */
-    protected function processXml(string $data): void
+    protected function processXml(string $data, int $limit): void
     {
         $xml = (new \SimpleXMLElement($data))->children();
-//        $namespace = $xml->getNamespaces(true)['content'];
-//        dd((string) $xml->channel->item[0]->children($namespace)->encoded);
 
         if (!property_exists($xml, 'channel')) {
             throw new RuntimeException('Could not find \'channel\' element in feed');
         }
-        foreach ($xml->channel->item as $item) {
+        $channel = (array)$xml->channel;
+        foreach (array_slice($channel['item'], 0, $limit) as $item) {
+            try {
+                $pub_date = $this->parseDate((string) $item->pubDate);
+            } catch (Exception $e) {
+                throw new TrailerParseDataFailed("Parsing publication date: " . $e->getMessage());
+            }
             $trailer = $this->getMovie((string) $item->title)
                 ->setTitle((string) $item->title)
                 ->setDescription((string) $item->description)
                 ->setLink((string) $item->link)
-                ->setPubDate($this->parseDate((string) $item->pubDate))
+                ->setPubDate($pub_date)
             ;
 
             $this->doctrine->persist($trailer);
@@ -143,13 +160,13 @@ class FetchDataCommand extends Command
     /**
      * @param string $date
      *
-     * @return \DateTime
+     * @return DateTime
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function parseDate(string $date): \DateTime
+    protected function parseDate(string $date): DateTime
     {
-        return new \DateTime($date);
+        return new DateTime($date);
     }
 
     /**
