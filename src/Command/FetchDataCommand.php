@@ -11,6 +11,7 @@ use App\Command\Exceptions\TrailerParseDataFailed;
 use App\Entity\Movie;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use DOMDocument;
 use Exception;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -133,22 +134,27 @@ class FetchDataCommand extends Command
     protected function processXml(string $data, int $limit): void
     {
         $xml = (new \SimpleXMLElement($data))->children();
-
         if (!property_exists($xml, 'channel')) {
             throw new RuntimeException('Could not find \'channel\' element in feed');
         }
-        $channel = (array)$xml->channel;
-        foreach (array_slice($channel['item'], 0, $limit) as $item) {
+        $channel = $xml->channel;
+
+        foreach ($channel->item as $item) {
             try {
                 $pub_date = $this->parseDate((string) $item->pubDate);
             } catch (Exception $e) {
                 throw new TrailerParseDataFailed("Parsing publication date: " . $e->getMessage());
             }
+
+            $content = (string)$item->children('http://purl.org/rss/1.0/modules/content/')->encoded;
+            $img = $this->getImageFromContent($content);
+
             $trailer = $this->getMovie((string) $item->title)
                 ->setTitle((string) $item->title)
                 ->setDescription((string) $item->description)
                 ->setLink((string) $item->link)
                 ->setPubDate($pub_date)
+                ->setImage($img)
             ;
 
             $this->doctrine->persist($trailer);
@@ -190,5 +196,29 @@ class FetchDataCommand extends Command
         }
 
         return $item;
+    }
+
+    /**
+     * Получение ссылки на постер
+     * @param string|null $html
+     * @return null
+     */
+    private function getImageFromContent(?string $html)
+    {
+        $doc = new DOMDocument();
+
+        if (!empty($html) && $doc->loadHTML($html)) {
+            $images = $doc->getElementsByTagName('img');
+            foreach ($images as $image) {
+                if ($image->hasAttribute('src')) {
+                    $src = $image->getAttribute('src');
+
+                    if (!empty($src)) {
+                        return $src;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
