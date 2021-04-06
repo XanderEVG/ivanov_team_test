@@ -139,7 +139,11 @@ class FetchDataCommand extends Command
         }
         $channel = $xml->channel;
 
+        $index = 0;
         foreach ($channel->item as $item) {
+            if ($index++ == $limit) {
+                break;
+            }
             try {
                 $pub_date = $this->parseDate((string) $item->pubDate);
             } catch (Exception $e) {
