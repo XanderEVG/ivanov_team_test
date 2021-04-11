@@ -14,9 +14,13 @@
                         <div class="poster"><img src="{{ trailer.image }}" alt="{{ trailer.title }}"></div>
                         <div class="caption"><a href="/trailer?id={{ trailer.id }}">{{ trailer.title }}</a></div>
                         <div class="likes">
-                            Лайков: <span class="likes_val">{{ likes[trailer.id] ?? 0 }}</span>
+                            Лайков: <span class="likes_val">{{ likes[trailer.id] | length }}</span>
                             {% if login %}
-                                <div class="like" data-movie-id="{{ trailer.id }}">Лайкнуть</div>
+                                {% if user_id in likes[trailer.id] %}
+                                    <div class="like liked" data-movie-id="{{ trailer.id }}">Лайкнуть</div>
+                                {% else %}
+                                    <div class="like" data-movie-id="{{ trailer.id }}">Лайкнуть</div>
+                                {% endif %}
                             {% endif %}
                         </div>
 

@@ -79,16 +79,21 @@ class HomeController
         // Получаем имя пользователя, если он залогинен
         $session = new \SlimSession\Helper();
         $login = $session['login'] ?? null;
+        $user_id= $session['user_id'] ?? null;
+
+        $movies = $this->fetchData();
+        $likes = $this->getLikes($movies);
 
         // Рендерим шаблон
         try {
             $data = $this->twig->render('home/index.html.twig', [
-                'trailers' => $this->fetchData(),
-                'likes' => array(),
+                'trailers' => $movies,
+                'likes' => $likes,
                 'current_controller' => $current_class_name,
                 'current_method' => $current_method_name,
                 'current_date' => $current_date->format('Y-m-d H:i:s'),
                 'login' => $login,
+                'user_id' => $user_id,
             ]);
         } catch (\Exception $e) {
             throw new HttpBadRequestException($request, $e->getMessage(), $e);
@@ -155,6 +160,19 @@ class HomeController
         $repo = $this->em->getRepository(Movie::class);
         $data = $repo->findAll();
         return new ArrayCollection($data);
+    }
+
+    protected function getLikes($movies): array
+    {
+        $likes = array();
+        foreach ($movies as $movie) {
+            $movie_likes = array();
+            foreach ($movie->getLikes() as $like) {
+                $movie_likes[] = $like->getId();
+            }
+            $likes[$movie->getId()] = $movie_likes;
+        }
+        return $likes;
     }
 
 
