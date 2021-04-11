@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Cake\Validation\Validator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpBadRequestException;
@@ -86,13 +87,33 @@ class UsersController
      */
     public function login(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $params = $request->getParsedBody();
+        $params = (array)$request->getParsedBody();
         $login = filter_var($params['login'] ?? null, FILTER_SANITIZE_STRING);
         $password = filter_var($params['password'] ?? null, FILTER_SANITIZE_STRING);
 
 
         //TODO validation
+        $validator = new Validator();
 
+        $validator
+            ->requirePresence('login', 'This field is required')
+            ->requirePresence('password', 'This field is required')
+            ->minLength('login', 3, 'Too short')
+            ->maxLength('login', 60, 'Too long')
+            ->minLength('password', 3, 'Too short')
+            ->maxLength('password', 60, 'Too long')
+        ;
+
+        $errors = $validator->validate($params);
+        if ($errors) {
+            $msg = "";
+            foreach ($errors as $field => $error) {
+                foreach ($error as $check => $message) {
+                    $msg .= "$field: $check $message; ";
+                }
+            }
+            return $response->withHeader('Location', "/login?msg=$msg");
+        }
         $repo = $this->em->getRepository(User::class);
         $user = $repo->findOneBy(['login' => $login]);
         if (!$user) {

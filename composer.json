@@ -15,6 +15,7 @@
     "ext-json": "*",
     "ext-simplexml": "*",
     "bryanjhv/slim-session": "~4.0",
+    "cakephp/validation": "^4.2",
     "doctrine/orm": "^2.6",
     "monolog/monolog": "^1.25",
     "php-http/client-common": "^2.0",
