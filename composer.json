@@ -33,7 +33,7 @@
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.1",
     "phpmetrics/phpmetrics": "^2.4",
-    "phpunit/phpunit": "8",
+    "phpunit/phpunit": "^9.5",
     "symfony/var-dumper": "^4.4",
     "vimeo/psalm": "^3.7"
   },
@@ -49,5 +49,9 @@
   },
   "config": {
     "sort-packages": true
+  },
+  "scripts": {
+    "test": "phpunit --configuration phpunit.xml",
+    "test:coverage": "phpunit --configuration phpunit.xml --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
   }
 }

@@ -1,0 +1,1 @@
+C:37:"PHPUnit\Runner\DefaultTestResultCache":300:{a:2:{s:7:"defects";a:0:{}s:5:"times";a:5:{s:33:"Tests\ConfigTest::test__construct";d:0.004;s:37:"Tests\ConfigTest::test__costructError";d:0;s:41:"Tests\ConfigTest::testEnvironmentFileLoad";d:0.001;s:25:"Tests\ConfigTest::testGet";d:0.002;s:44:"App\Test\TestCase\Support\LikesTest::testAdd";d:0.001;}}}

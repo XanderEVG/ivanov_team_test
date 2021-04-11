@@ -18,7 +18,9 @@
 2) создание юзера `php bin/console users:create user1 qweqwe user1@mail.ru`
 ---------
 
-
+Запуск тестов
+---------------
+`composer test`
 
 
 
