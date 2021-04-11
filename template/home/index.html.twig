@@ -9,10 +9,17 @@
         <table class="table table-bordered">
 
             {% for trailer in trailers %}
-                <tr>
+                <tr class="movie {{ trailer.id }}">
                     <td>
                         <div class="poster"><img src="{{ trailer.image }}" alt="{{ trailer.title }}"></div>
                         <div class="caption"><a href="/trailer?id={{ trailer.id }}">{{ trailer.title }}</a></div>
+                        <div class="likes">
+                            Лайков: <span class="likes_val">{{ likes[trailer.id] ?? 0 }}</span>
+                            {% if login %}
+                                <div class="like" data-movie-id="{{ trailer.id }}">Лайкнуть</div>
+                            {% endif %}
+                        </div>
+
                     </td>
                 </tr>
             {% endfor %}

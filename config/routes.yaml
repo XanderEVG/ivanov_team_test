@@ -28,3 +28,9 @@ logout:
   controller: App\Controller\UsersController
   action: logout
 
+set_like:
+  method: 'post'
+  path: 'setlike'
+  controller: App\Controller\HomeController
+  action: setlike
+

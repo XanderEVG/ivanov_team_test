@@ -1,4 +1,4 @@
-.poster, .caption, .title  {
+.poster, .caption, .title, .likes  {
     text-align: center
 }
 
@@ -29,4 +29,12 @@
 
 .go_home a {
     color: #6c6a6a;
+}
+
+.like {
+    cursor: pointer
+}
+
+.like.liked {
+    color: #1e7e34;
 }

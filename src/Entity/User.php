@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 
@@ -42,6 +44,18 @@ class User
      */
     private $password;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Movie::class, mappedBy="likes")
+     */
+    private $movies;
+
+    /**
+     * User constructor.
+     */
+    public function __construct()
+    {
+        $this->movies = new ArrayCollection();
+    }
 
     /**
      * @return int|null
@@ -104,6 +118,34 @@ class User
     public function setPassword(string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getLikedMovies(): array
+    {
+        return $this->movies->getValues();
+    }
+
+    public function addLikeMovie(Movie $movie): self
+    {
+        if (!$this->movies->contains($movie)) {
+            $this->$movie[] = $movie;
+            $movie->addLike($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLikeMovie(Movie $movie): self
+    {
+        if ($this->movies->removeElement($movie)) {
+            $movie->removeLike($this);
+        }
 
         return $this;
     }

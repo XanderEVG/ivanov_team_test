@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 
@@ -54,25 +56,17 @@ final class Movie
      */
     private $image;
 
-    /**
-     * @return string|null
-     */
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
 
     /**
-     * @param string|null $image
-     *
-     * @return Movie
+     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="movies")
      */
-    public function setImage(?string $image): self
-    {
-        $this->image = $image;
+    private $likes;
 
-        return $this;
+    public function __construct()
+    {
+        $this->likes = new ArrayCollection();
     }
+
 
     /**
      * @return int|null
@@ -158,6 +152,59 @@ final class Movie
     public function setPubDate(?\DateTime $pubDate): self
     {
         $this->pubDate = $pubDate;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param string|null $image
+     *
+     * @return Movie
+     */
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLikes(): array
+    {
+        return $this->likes->getValues();
+    }
+
+    public function checkLike(User $like): bool
+    {
+        if (!$this->likes->contains($like)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function addLike(User $like): self
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes[] = $like;
+        }
+
+        return $this;
+    }
+
+    public function removeLike(User $like): self
+    {
+        $this->likes->removeElement($like);
 
         return $this;
     }

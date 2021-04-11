@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Movie;
+use App\Entity\User;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -83,6 +84,7 @@ class HomeController
         try {
             $data = $this->twig->render('home/index.html.twig', [
                 'trailers' => $this->fetchData(),
+                'likes' => array(),
                 'current_controller' => $current_class_name,
                 'current_method' => $current_method_name,
                 'current_date' => $current_date->format('Y-m-d H:i:s'),
@@ -153,5 +155,68 @@ class HomeController
         $repo = $this->em->getRepository(Movie::class);
         $data = $repo->findAll();
         return new ArrayCollection($data);
+    }
+
+
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
+     *
+     * @throws HttpBadRequestException
+     * @throws Exception
+     */
+    public function setlike(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        // Получаем параметры
+        $params = $request->getParsedBody();
+        $movie_id = intval($params['movie_id']);
+
+        // Получаем ид пользователя
+        $session = new \SlimSession\Helper();
+        $user_id = $session['user_id'] ?? null;
+
+        if ($user_id == 0 || $movie_id == 0) {
+            $response->getBody()->write("Ошибка, невозможно поставить лайк");
+            return $response->withStatus(404);
+        }
+
+
+
+        // Ищем трейлер
+        $repo_trailers = $this->em->getRepository(Movie::class);
+        $trailer = $repo_trailers->find($movie_id);
+        if(!$trailer) {
+            $response->getBody()->write("Такой трейлер не найден");
+            return $response->withStatus(404);
+        }
+
+        $repo_users = $this->em->getRepository(User::class);
+        $user = $repo_users->find($user_id);
+        if(!$user) {
+            $response->getBody()->write("Пользователь не найден");
+            return $response->withStatus(404);
+        }
+
+        if ( $trailer->checkLike($user)) {
+            $response->getBody()->write(json_encode(['result' => false, 'msg' => "Уже лайкнуто"]));
+            return $response;
+        }
+
+        $trailer->addLike($user);
+
+        try {
+            $this->em->persist($trailer);
+            $this->em->flush();
+
+        } catch (Exception $e) {
+            $response->getBody()->write($e->getMessage());
+            return $response->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['result' => true, 'movie_id' => $movie_id]));
+        return $response;
     }
 }

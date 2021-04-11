@@ -13,8 +13,9 @@
 Импорт данных
 --------------
 
-Выполнить в консоли в корне проекта: `php bin/console fetch:trailers`
-
+Выполнить в консоли в корне проекта:
+1) Импорт фильмов `php bin/console fetch:trailers`
+2) создание юзера `php bin/console users:create user1 qweqwe user1@mail.ru`
 ---------
 
 

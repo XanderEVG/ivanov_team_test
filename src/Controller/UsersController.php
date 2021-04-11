@@ -102,6 +102,7 @@ class UsersController
         $saved_password_hash = $user->getPassword();
         if (password_verify($password, $saved_password_hash)) {
             $session = new \SlimSession\Helper();
+            $session['user_id'] = $user->getId();
             $session['login'] = $login;
             return $response->withHeader('Location', '/');
         } else {
