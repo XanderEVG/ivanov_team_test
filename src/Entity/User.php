@@ -94,7 +94,7 @@ class User
      */
     public function getPassword(): string
     {
-        return $this->email;
+        return $this->password;
     }
 
     /**

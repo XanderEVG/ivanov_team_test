@@ -92,7 +92,7 @@ class FetchDataCommand extends Command
     {
         $this->logger->info(sprintf('Start %s at %s', __CLASS__, (string) date_create()->format(DATE_ATOM)));
         $source = self::SOURCE;
-        $limit = self::SOURCE;
+
         if ($input->getArgument('source')) {
             $source = $input->getArgument('source');
         }

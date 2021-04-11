@@ -94,7 +94,7 @@ class UsersController
         //TODO validation
 
         $repo = $this->em->getRepository(User::class);
-        $user = $repo->findBy(['login' => $login]);
+        $user = $repo->findOneBy(['login' => $login]);
         if (!$user) {
             return $response->withHeader('Location', '/login?msg=Ошибка. Вы ввели неверные данные авторизации');
         }
@@ -103,7 +103,7 @@ class UsersController
         if (password_verify($password, $saved_password_hash)) {
             echo 'Пароль правильный!';
         } else {
-            echo 'Пароль неправильный.';
+            return $response->withHeader('Location', '/login?msg=Ошибка. Вы ввели неверные данные авторизации');
         }
         exit();
     }
