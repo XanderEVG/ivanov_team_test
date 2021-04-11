@@ -1,0 +1,13 @@
+{% block header %}
+    <div class="header">
+        {% if current_controller and current_method and current_date %}
+            {{ current_controller }}->{{ current_method }}: {{ current_date }}
+        {% endif %}
+
+        {% if login %}
+            {{ login }} <a href="/logout">Выход</a>
+        {% else  %}
+            <a href="/login">Войти</a>
+        {% endif %}
+    </div>
+{% endblock %}

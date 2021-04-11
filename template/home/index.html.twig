@@ -3,9 +3,7 @@
 {% block title %}{{ trailers | length }} iTunes Movie trailers{% endblock %}
 
 {% block content %}
-    <div class="header">
-        {{ current_controller }}->{{ current_method }}: {{ current_date }}
-    </div>
+    {% include 'header.html.twig' %}
     <div class="container">
         <h1 class="mt-5 mb-4">{{ trailers | length }} iTunes Movie trailers</h1>
         <table class="table table-bordered">

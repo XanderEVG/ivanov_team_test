@@ -37,6 +37,7 @@ class AppProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
+
         // Console commands
         $container->set(CommandMap::class, static function () {
             return new CommandMap();

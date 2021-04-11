@@ -101,11 +101,25 @@ class UsersController
 
         $saved_password_hash = $user->getPassword();
         if (password_verify($password, $saved_password_hash)) {
-            echo 'Пароль правильный!';
+            $session = new \SlimSession\Helper();
+            $session['login'] = $login;
+            return $response->withHeader('Location', '/');
         } else {
             return $response->withHeader('Location', '/login?msg=Ошибка. Вы ввели неверные данные авторизации');
         }
-        exit();
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
+     */
+    public function logout(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $session = new \SlimSession\Helper();
+        $session::destroy();
+        return $response->withHeader('Location', '/login');
     }
 
 }

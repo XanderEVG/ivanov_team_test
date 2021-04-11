@@ -26,5 +26,12 @@ $app = new App(
 
 $app->add($container->get(RoutingMiddleware::class));
 $app->add($container->get(ErrorMiddleware::class));
+$app->add(
+    new \Slim\Middleware\Session([
+        'name' => 'app_session',
+        'autorefresh' => true,
+        'lifetime' => '1 hour',
+    ])
+);
 
 $app->run($request);

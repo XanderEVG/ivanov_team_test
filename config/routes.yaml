@@ -22,3 +22,9 @@ login_action:
   controller: App\Controller\UsersController
   action: login
 
+logout:
+  method: 'get'
+  path: 'logout'
+  controller: App\Controller\UsersController
+  action: logout
+

@@ -72,19 +72,27 @@ class HomeController
             $current_method_name = "не определен";
         }
 
+        // Получаем текущую дату
         $current_date = new DateTime();
 
+        // Получаем имя пользователя, если он залогинен
+        $session = new \SlimSession\Helper();
+        $login = $session['login'] ?? null;
+
+        // Рендерим шаблон
         try {
             $data = $this->twig->render('home/index.html.twig', [
                 'trailers' => $this->fetchData(),
                 'current_controller' => $current_class_name,
                 'current_method' => $current_method_name,
                 'current_date' => $current_date->format('Y-m-d H:i:s'),
+                'login' => $login,
             ]);
         } catch (\Exception $e) {
             throw new HttpBadRequestException($request, $e->getMessage(), $e);
         }
 
+        // Пишем собранный шаблон в респонс
         $response->getBody()->write($data);
 
         return $response;
@@ -101,20 +109,32 @@ class HomeController
      */
     public function trailer(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        // В 4 версии такого метода нет WTF?
-        //$trailer_id = $request->getQueryParam('trailer_id');
+        //$trailer_id = $request->getQueryParam('trailer_id'); // В 4 версии такого метода нет WTF?
 
+        // Получаем параметры
         $params = $request->getQueryParams();
         $trailer_id = intval($params['id']);
         if ($trailer_id == 0) {
             throw new Exception("Не задан обязательный параметр");
         }
 
+        // Получаем имя пользователя, если он залогинен
+        $session = new \SlimSession\Helper();
+        $login = $session['login'] ?? null;
+
+        // Ищем трейлер
         $repo = $this->em->getRepository(Movie::class);
-        $data = $repo->find($trailer_id);
+        $trailer = $repo->find($trailer_id);
+        if(!$trailer) {
+            $response->getBody()->write("Такой трейлер не найден");
+            return $response->withStatus(404);
+        }
+
+        // Собираем шаблон и отправляем данные
         try {
             $data = $this->twig->render('home/trailer.html.twig', [
-                'trailer' => $data,
+                'trailer' => $trailer,
+                'login' => $login,
             ]);
         } catch (\Exception $e) {
             throw new HttpBadRequestException($request, $e->getMessage(), $e);
