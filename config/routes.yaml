@@ -10,3 +10,15 @@ trailer:
   controller: App\Controller\HomeController
   action: trailer
 
+login_page:
+  method: 'get'
+  path: 'login'
+  controller: App\Controller\UsersController
+  action: index
+
+login_action:
+  method: 'post'
+  path: 'login'
+  controller: App\Controller\UsersController
+  action: login
+

@@ -1,0 +1,15 @@
+{% extends 'main.html.twig' %}
+
+{% block title %}Страница входа{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <form id="login_form" action="/login" autocomplete="on" method="POST">
+            <div class="caption"> Вход </div>
+            <input id="login" class="input" name="login" required="required" type="text" placeholder="Логин" value=""><br>
+            <input id="password" class="input" name="password" required="required" type="password" placeholder="Пароль"><br>
+            {% if msg %} {{ msg }}<br> {% endif %}
+            <input id="login_form_submit" type="submit" value="Войти">
+        </form>
+    </div>
+{% endblock %}

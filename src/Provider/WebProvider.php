@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace App\Provider;
 
 use App\Controller\HomeController;
+use App\Controller\UsersController;
 use App\Support\Config;
 use App\Support\ServiceProviderInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,6 +42,10 @@ class WebProvider implements ServiceProviderInterface
     {
         $container->set(HomeController::class, static function (ContainerInterface $container) {
             return new HomeController($container->get(RouteCollectorInterface::class), $container->get(Environment::class), $container->get(EntityManagerInterface::class));
+        });
+
+        $container->set(UsersController::class, static function (ContainerInterface $container) {
+            return new UsersController($container->get(RouteCollectorInterface::class), $container->get(Environment::class), $container->get(EntityManagerInterface::class));
         });
     }
 
